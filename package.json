@@ -1,0 +1,87 @@
+{
+  "name": "adelfa-vscode",
+  "displayName": "Adelfa",
+  "description": "Language support for the Adelfa proof assistant",
+  "version": "0.1.0",
+  "engines": {
+    "vscode": "^1.94.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "adelfa",
+        "aliases": [
+          "Adelfa"
+        ],
+        "extensions": [
+          ".ath"
+        ],
+        "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "lf",
+        "aliases": [
+          "lf"
+        ],
+        "extensions": [
+          ".lf"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "adelfa",
+        "scopeName": "source.adelfa",
+        "path": "./syntaxes/adelfa.tmLanguage.json"
+      },
+      {
+        "language": "lf",
+        "scopeName": "source.lf",
+        "path": "./syntaxes/lf.tmLanguage.json"
+      }
+    ],
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/adelfa-prover/adelfa-vscode"
+    },
+    "commands": [
+      {
+        "command": "adelfa-vscode.runFile",
+        "title": "Adelfa: Run File"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "npm run check-types && npm run lint && node esbuild.js",
+    "watch": "npm-run-all -p watch:*",
+    "watch:esbuild": "node esbuild.js --watch",
+    "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
+    "package": "npm run check-types && npm run lint && node esbuild.js --production",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.94.0",
+    "@types/mocha": "^10.0.8",
+    "@types/node": "20.x",
+    "@typescript-eslint/eslint-plugin": "^8.7.0",
+    "@typescript-eslint/parser": "^8.7.0",
+    "eslint": "^9.11.1",
+    "esbuild": "^0.24.0",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.6.2",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.4.1"
+  }
+}
