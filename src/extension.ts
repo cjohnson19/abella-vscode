@@ -1,45 +1,85 @@
-import { exec } from "child_process";
+import { ChildProcess, exec, spawn } from "child_process";
 import { parse } from "path";
+import { Readable } from "stream";
 import * as vscode from "vscode";
+import { AdelfaWatchTerminal } from "./adelfa-terminal";
+import { AdelfaServer } from "./server";
+
+type inputOutput = {
+  input: string;
+  output: string;
+};
+
+let server: AdelfaServer | undefined = undefined;
+
+async function provideInput(proc: ChildProcess, str: string): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    // Add the event listener
+    const cb = function (d: Buffer) {
+      vscode.window.showInformationMessage(`Received data: ${d.toString()}`);
+      const resStr = d.toString();
+      if (resStr.split("\n").some((line) => line.trim().startsWith("ERROR"))) {
+        reject();
+      } else if (resStr.split("\n").some((line) => line.trim().match(/.*>>/))) {
+        // outputs.push({
+        //   input: str,
+        //   output: resStr,
+        // });
+      }
+      proc.removeListener("data", cb);
+      resolve(resStr);
+    };
+    const stdinStream = new Readable();
+    proc.on("data", cb);
+    vscode.window.showInformationMessage(`Sending data: ${str}`);
+    stdinStream.push(str);
+    stdinStream.push(null);
+    stdinStream.pipe(proc.stdin!);
+  });
+}
 
 export function activate(context: vscode.ExtensionContext) {
-  const disposable = vscode.commands.registerCommand(
-    "adelfa-vscode.runFile",
-    async () => {
-      if (!vscode.window.activeTextEditor?.document.fileName.endsWith(".ath")) {
-        vscode.window.showErrorMessage("No Adelfa file detected");
-        return;
-      }
-      const fileParts = parse(
-        vscode.window.activeTextEditor?.document.fileName || "",
-      );
-      vscode.window.showInformationMessage(`Running file: ${fileParts.base}`);
-      exec(
-        `adelfa -i ${fileParts.base}`,
-        { cwd: fileParts.dir },
-        async (error, stdout, stderr) => {
-          if (error) {
-            vscode.window.showErrorMessage(
-              `Failed to run ${fileParts.base}: ${error.message}`,
-            );
-            return;
-          }
-          if (stderr) {
-            vscode.window.showErrorMessage(
-              `Failed to run ${fileParts.base}: ${stderr}`,
-            );
-            return;
-          }
-					const mostRecentResponse = stdout.split(/[^\s]+>>/).slice(-1)[0];
-          const outputDoc = await vscode.workspace.openTextDocument({
-            content: `>>${mostRecentResponse}`,
-          });
-          vscode.window.showTextDocument(outputDoc, vscode.ViewColumn.Beside);
-        },
-      );
+  vscode.tasks.registerTaskProvider("adelfa", {
+    provideTasks: () => {
+      return [
+        new vscode.Task(
+          { type: "adelfa" },
+          vscode.TaskScope.Workspace,
+          "Adelfa",
+          "adelfa",
+          new vscode.CustomExecution(async (_def) => {
+            return new Promise<vscode.Pseudoterminal>((resolve) => {
+              resolve(
+                new AdelfaWatchTerminal(
+                  vscode.window.activeTextEditor?.document.fileName ?? "",
+                ),
+              );
+            });
+          }),
+        ),
+      ];
     },
+    resolveTask(_task: vscode.Task): vscode.Task | undefined {
+      return undefined;
+    },
+  });
+
+  server = new AdelfaServer(context);
+
+  context.subscriptions.push(
+    vscode.window.onDidChangeTextEditorSelection(
+      (e: vscode.TextEditorSelectionChangeEvent) => {
+        server?.updateInfoView(e);
+      },
+    ),
   );
-  context.subscriptions.push(disposable);
+  context.subscriptions.push(
+    vscode.window.onDidChangeActiveTextEditor(
+      (e: vscode.TextEditor | undefined) => {
+        server?.loadFile();
+      },
+    ),
+  );
 }
 
 export function deactivate() {}

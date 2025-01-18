@@ -12,6 +12,20 @@
   "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
+    "configuration": {
+      "title": "Adelfa",
+      "properties": {
+        "adelfa.path": {
+          "type": "string",
+          "default": "adelfa",
+          "description": "Path to the Adelfa executable"
+        },
+        "adelfa.autoOpen": {
+          "type": "boolean",
+          "description": "Automatically open the Adelfa output"
+        }
+      }
+    },
     "languages": [
       {
         "id": "adelfa",
@@ -52,8 +66,8 @@
     },
     "commands": [
       {
-        "command": "adelfa-vscode.runFile",
-        "title": "Adelfa: Run File"
+        "command": "adelfa-vscode.endProcess",
+        "title": "Adelfa: End Process"
       }
     ]
   },
