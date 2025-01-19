@@ -1,5 +1,6 @@
 {
   "scopeName": "source.adelfa",
+  "name": "adelfa",
   "patterns": [
     {
       "name": "string.quoted.double.adelfa",
@@ -47,6 +48,10 @@
     {
       "name": "support.function.adelfa",
       "match": "\\b(forall|exists|case|inst|induction|intros|keep|left|right|search|split|on|to|with|assert|weaken|prune|strengthen|ctxpermute|permute|ctx)\\b"
+    },
+    {
+      "name": "support.function.adelfa",
+      "match": "(?:Proof Completed!)"
     },
     {
       "match": "\\b(apply)\\s+([A-Za-z0-9'-_.]+)",
