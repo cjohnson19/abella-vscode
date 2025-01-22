@@ -22,8 +22,8 @@ export class InfoProvider implements Disposable {
     this.panel.webview.html = this.getHtml(grammar);
   }
 
-  async update(content: string): Promise<boolean> {
-    return this.panel.webview.postMessage({ content });
+  async update(msg: { code?: string, message?: string }): Promise<boolean> {
+    return this.panel.webview.postMessage(msg);
   }
 
   private getHtml(grammar: string): string {
@@ -42,13 +42,17 @@ export class InfoProvider implements Disposable {
 <body>
   <h1>Adelfa</h1>
 
+  <div id="message">
+    <p>Loading</p>
+  </div>
+
   <div id="content">
-    <p>Loading...</p>
   </div>
 
   <script type="module">
     import { createHighlighter } from 'https://esm.sh/shiki@1.27.2';
     const content = document.getElementById("content");
+    const message = document.getElementById("message");
     const html = document.getElementsByTagName("html")[0];
 
     function getVar(name) {
@@ -427,10 +431,11 @@ export class InfoProvider implements Disposable {
     });
 
     window.addEventListener("message", async (event) => {
-      content.innerHTML = highlighter.codeToHtml(event.data.content, {
+      message.innerHTML = event.data.message ? \`<p>\${event.data.message}<p>\` : "";
+      content.innerHTML = event.data.code ? highlighter.codeToHtml(event.data.code, {
         lang: "adelfa",
         theme: "user-theme"
-      });
+      }) : "";
     });
   </script>
 </body>

@@ -116,12 +116,12 @@ export class AdelfaServer {
   }
 
   async loadNewFile() {
-    return new Promise(async (resolve) => {
+    return new Promise<void>(async (resolve) => {
       if (window.activeTextEditor?.document.languageId !== "adelfa") {
         return;
       }
       await this.clearState();
-      this.infoProvider.update("Loading...");
+      this.infoProvider.update({ message: "Loading file" });
 
       this.filePath = parse(window.activeTextEditor.document.fileName);
       this.proc = spawn(this.adelfaPath, {
@@ -131,7 +131,10 @@ export class AdelfaServer {
         stdio: "pipe",
       });
       this.proc.stdout?.once("data", () => {
-        this.fillCommands(this.getCommands(this.documentRange())).then(resolve);
+        this.fillCommands(this.getCommands(this.documentRange())).then(() => {
+          this.showInfoAtPosition(window.activeTextEditor?.selection.active ?? new Position(0, 0));
+          resolve();
+        });
         // this.updateFile().then(resolve);
       });
     });
@@ -139,11 +142,10 @@ export class AdelfaServer {
 
   private getCommands(range: Range): Command[] {
     const output = [];
-    const rangeStart = range.start;
     let input = "";
     let inString = false;
     let startLineRange = range.start.line;
-    for (let i = range.start.line; i <= range.end.line; i++) {
+    for (let i = range.start.line; i < range.end.line; i++) {
       if (input.trim() === "") {
         startLineRange = i;
       }
@@ -212,7 +214,7 @@ export class AdelfaServer {
         this.proc?.stderr?.removeAllListeners();
       }
     }
-    if (window.activeTextEditor?.selection.active) {
+    if (window.activeTextEditor?.selection.active && window.activeTextEditor?.document.languageId === "adelfa") {
       this.showInfoAtPosition(window.activeTextEditor?.selection.active);
     }
     this.loading = false;
@@ -259,6 +261,9 @@ export class AdelfaServer {
   }
 
   private async updateFile() {
+    if (window.activeTextEditor?.document.languageId !== "adelfa") {
+      return;
+    }
     this.errorRange = undefined;
     if (window.activeTextEditor?.document.getText() !== this.fileContent) {
       await this.undoCommandsUntilPosition(this.startCursorPosition());
@@ -268,7 +273,7 @@ export class AdelfaServer {
       new Range(new Position(0, 0), this.endCursorPosition()),
     );
     const commandsToFill = newCommands.filter((c) =>
-      c.range.start.isAfter(this.evaluatedRange.end),
+      c.range.start.isAfterOrEqual(this.evaluatedRange.end),
     );
     await this.fillCommands(commandsToFill);
   }
@@ -284,7 +289,13 @@ export class AdelfaServer {
   }
 
   showInfoAtPosition(p: Position) {
-    const command = this.lastCommand(p) ?? { input: "", output: "" };
-    this.infoProvider.update(`>> ${command.command}\n\n${command.output}`);
+    const command: CommandWithOutput = this.lastCommand(p);
+    if (command) {
+      this.infoProvider.update({
+        code: `>> ${command.command}\n\n${command.output}`
+      });
+    } else {
+      this.infoProvider.update({ message: "No command found" });
+    }
   }
 }
