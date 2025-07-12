@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+out/
+coverage/
+
+# Generated files
+*.js.map
+*.d.ts
+
+# Package files
+package-lock.json
+
+# VS Code specific
+.vscode/
+.vscode-test.js
+
+# Test files (optional - you may want to format these)
+# test/

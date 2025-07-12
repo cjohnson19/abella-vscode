@@ -3,6 +3,7 @@
   "displayName": "Adelfa",
   "description": "Language support for the Adelfa proof assistant",
   "version": "0.1.0",
+  "publisher": "adelfa-prover",
   "engines": {
     "vscode": "^1.94.0"
   },
@@ -22,7 +23,8 @@
         },
         "adelfa.autoOpen": {
           "type": "boolean",
-          "description": "Automatically open the Adelfa output"
+          "description": "Automatically open the Adelfa output",
+          "default": true
         }
       }
     },
@@ -66,8 +68,20 @@
     },
     "commands": [
       {
-        "command": "adelfa-vscode.endProcess",
+        "command": "adelfa.endProcess",
         "title": "Adelfa: End Process"
+      },
+      {
+        "command": "adelfa.restart",
+        "title": "Adelfa: Restart Extension"
+      },
+      {
+        "command": "adelfa.showOutput",
+        "title": "Adelfa: Show / Open Info view"
+      },
+      {
+        "command": "adelfa.start",
+        "title": "Adelfa: Start Extension"
       }
     ]
   },
@@ -78,12 +92,19 @@
     "watch:esbuild": "node esbuild.js --watch",
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
     "package": "npm run check-types && npm run lint && node esbuild.js --production",
-    "compile-tests": "tsc -p . --outDir out",
-    "watch-tests": "tsc -p . -w --outDir out",
+    "compile-tests": "tsc -p tsconfig.test.json",
+    "watch-tests": "tsc -p tsconfig.test.json -w",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "check-types": "tsc --noEmit",
-    "lint": "eslint src",
-    "test": "vscode-test"
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:all": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\" --ignore-path .prettierignore",
+    "lint-and-format": "npm run lint:fix && npm run format",
+    "test": "vscode-test",
+    "test:simple": "npm run compile && vscode-test",
+    "prepare": "husky install"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.8",
@@ -95,7 +116,23 @@
     "@vscode/test-electron": "^2.4.1",
     "esbuild": "^0.24.0",
     "eslint": "^9.11.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "glob": "^10.3.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.6",
+    "mocha": "^10.0.0",
     "npm-run-all": "^4.1.5",
+    "prettier": "^3.6.2",
     "typescript": "^5.6.2"
+  },
+  "lint-staged": {
+    "src/**/*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "**/*.{json,md}": [
+      "prettier --write"
+    ]
   }
 }

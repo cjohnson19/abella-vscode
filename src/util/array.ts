@@ -1,4 +1,4 @@
-import { Option } from "./option";
+import type { Option } from './option';
 
 declare global {
   interface Array<T> {
@@ -9,21 +9,22 @@ declare global {
   }
 }
 
-Array.prototype.chunk = function (size: number) {
-  return Array.from({ length: Math.ceil(this.length / size) }, (_, i) =>
-    this.slice(i * size, i * size + size),
+Array.prototype.chunk = function <T>(size: number): T[][] {
+  return Array.from(
+    { length: Math.ceil(this.length / size) },
+    (_, i) => this.slice(i * size, i * size + size) as T[],
   );
 };
 
-Array.prototype.skip = function (num: number) {
+Array.prototype.skip = function <T>(num: number): T[] {
   return this.slice(num);
 };
 
-Array.prototype.dropEnd = function (num: number) {
+Array.prototype.dropEnd = function <T>(num: number): T[] {
   return this.slice(0, this.length - num);
 };
 
-Array.prototype.last = function () {
+Array.prototype.last = function <T>(): T {
   return this[this.length - 1];
 };
 
@@ -35,7 +36,7 @@ export function zipLongest<T, U>(a1: T[], a2: U[]): [T, U][] {
   const result: [T, U][] = [];
   const len = Math.max(a1.length, a2.length);
   for (let i = 0; i < len; i++) {
-    result.push([a1[i], a2[i]]);
+    result.push([a1[i]!, a2[i]!]);
   }
   return result;
 }

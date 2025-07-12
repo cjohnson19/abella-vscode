@@ -1,32 +1,7 @@
-import {
-  Disposable,
-  ExtensionContext,
-  ViewColumn,
-  WebviewPanel,
-  window,
-} from "vscode";
+export class WebviewContent {
+  constructor(private grammar: string) {}
 
-export class InfoProvider implements Disposable {
-  private panel: WebviewPanel;
-
-  constructor(private context: ExtensionContext, private grammar: string) {
-    this.panel = window.createWebviewPanel(
-      "adelfa",
-      "Adelfa Info",
-      { viewColumn: ViewColumn.Two },
-      {
-        enableScripts: true,
-        retainContextWhenHidden: true,
-      },
-    );
-    this.panel.webview.html = this.getHtml(grammar);
-  }
-
-  async update(msg: { code?: string, message?: string }): Promise<boolean> {
-    return this.panel.webview.postMessage(msg);
-  }
-
-  private getHtml(grammar: string): string {
+  getHtml(): string {
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -426,7 +401,7 @@ export class InfoProvider implements Disposable {
     }
 
     const highlighter = await createHighlighter({
-      langs: [${grammar}],
+      langs: [${this.grammar}],
       themes: [theme]
     });
 
@@ -437,12 +412,13 @@ export class InfoProvider implements Disposable {
         theme: "user-theme"
       }) : "";
     });
+    content.scrollIntoView({ behavior: "smooth", block: "end" });
+    const vscode = acquireVsCodeApi();
+    document.addEventListener("load", (event) => {
+      vscode.postMessage({ command: 'update' });
+    });
   </script>
 </body>
 </html>`;
-  }
-
-  dispose() {
-    this.panel.dispose();
   }
 }
