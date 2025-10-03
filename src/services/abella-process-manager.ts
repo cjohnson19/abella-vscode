@@ -2,18 +2,22 @@ import { spawn, type ChildProcess } from 'child_process';
 import type { ParsedPath } from 'path';
 import { window } from 'vscode';
 
-export class AdelfaProcessManager {
+export class AbellaProcessManager {
   private readonly DEFAULT_TIMEOUT = 30000; // 30 seconds
   private process: ChildProcess | undefined;
 
-  constructor(private adelfaPath: string) {}
+  private isError(s: string): boolean {
+    return s.toLowerCase().includes('error');
+  }
+
+  constructor(private abellaPath: string) {}
 
   async start(filePath: ParsedPath): Promise<void> {
     if (this.process) {
-      throw new Error('Adelfa process is already running');
+      throw new Error('Abella process is already running');
     }
 
-    this.process = spawn(this.adelfaPath, {
+    this.process = spawn(this.abellaPath, {
       cwd: filePath.dir,
       env: globalThis.process.env,
       shell: true,
@@ -26,7 +30,7 @@ export class AdelfaProcessManager {
         this.cleanup();
         reject(
           new Error(
-            `Adelfa process failed to start. Is '${this.adelfaPath}' installed and in your PATH?`,
+            `Abella process failed to start. Is '${this.abellaPath}' installed and in your PATH?`,
           ),
         );
       }, 5000);
@@ -39,14 +43,14 @@ export class AdelfaProcessManager {
       this.process!.on('error', error => {
         clearTimeout(timeout);
         this.cleanup();
-        reject(new Error(`Failed to start Adelfa: ${error.message}`));
+        reject(new Error(`Failed to start Abella: ${error.message}`));
       });
 
       this.process!.on('exit', code => {
         clearTimeout(timeout);
         if (code !== null && code !== 0) {
           this.cleanup();
-          reject(new Error(`Adelfa process exited with code ${code}`));
+          reject(new Error(`Abella process exited with code ${code}`));
         }
       });
     });
@@ -66,7 +70,7 @@ export class AdelfaProcessManager {
     }
 
     return new Promise(resolve => {
-      window.showInformationMessage('Ending Adelfa process');
+      window.showInformationMessage('Ending Abella process');
       this.process!.kill();
       this.process!.on('exit', () => {
         this.process = undefined;
@@ -77,11 +81,11 @@ export class AdelfaProcessManager {
 
   async sendCommand(command: string): Promise<string> {
     if (!this.process) {
-      throw new Error('Adelfa process is not running');
+      throw new Error('Abella process is not running');
     }
 
     if (!this.process.stdin || this.process.stdin.destroyed) {
-      throw new Error('Adelfa process stdin stream is not available');
+      throw new Error('Abella process stdin stream is not available');
     }
 
     const result = await this.readOutput(`${command}\x0d`);
@@ -99,8 +103,11 @@ export class AdelfaProcessManager {
 
       const onData = (chunk: Buffer) => {
         data += chunk.toString();
-        if (data.includes('>>')) {
-          data = data.replace(/.*>>/g, '');
+        if (this.isError(data)) {
+          cleanup();
+          reject(data);
+        } else if (data.includes('<')) {
+          data = data.replace(/.*</g, '');
           cleanup();
           resolve(data);
         }
@@ -133,7 +140,7 @@ export class AdelfaProcessManager {
       // Check if stdin is still writable before attempting to write
       if (!this.process!.stdin || this.process!.stdin.destroyed) {
         cleanup();
-        reject(new Error('Cannot write to Adelfa process: stdin stream is not available'));
+        reject(new Error('Cannot write to Abella process: stdin stream is not available'));
         return;
       }
 

@@ -1,17 +1,17 @@
 import * as vscode from 'vscode';
-import { AdelfaLanguageClient } from './adelfa-language-client';
-import adelfaGrammar from '../syntaxes/adelfa.tmLanguage.json';
+import { AbellaLanguageClient } from './abella-language-client';
+import abellaGrammar from '../syntaxes/abella.tmLanguage.json';
 
-let client: AdelfaLanguageClient | undefined;
-const grammar = JSON.stringify(adelfaGrammar);
+let client: AbellaLanguageClient | undefined;
+const grammar = JSON.stringify(abellaGrammar);
 
 // Export client for testing purposes
-export function getClient(): AdelfaLanguageClient | undefined {
+export function getClient(): AbellaLanguageClient | undefined {
   return client;
 }
 
 export function activate(context: vscode.ExtensionContext) {
-  client = new AdelfaLanguageClient(grammar);
+  client = new AbellaLanguageClient(grammar);
 
   registerEventListeners(context);
 
@@ -38,7 +38,7 @@ function registerEventListeners(context: vscode.ExtensionContext) {
 
 function registerCommands(context: vscode.ExtensionContext) {
   context.subscriptions.push(
-    vscode.commands.registerCommand('adelfa.endProcess', async () => {
+    vscode.commands.registerCommand('abella.endProcess', async () => {
       if (client) {
         await client.dispose();
       }
@@ -46,18 +46,18 @@ function registerCommands(context: vscode.ExtensionContext) {
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand('adelfa.restart', async () => {
+    vscode.commands.registerCommand('abella.restart', async () => {
       if (client) {
         await client.dispose();
       }
-      client = new AdelfaLanguageClient(grammar);
+      client = new AbellaLanguageClient(grammar);
     }),
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand('adelfa.showOutput', () => {
+    vscode.commands.registerCommand('abella.showOutput', () => {
       if (!client) {
-        vscode.window.showErrorMessage('Adelfa server is not running');
+        vscode.window.showErrorMessage('Abella server is not running');
         return;
       }
       client.showOutput();
@@ -65,12 +65,12 @@ function registerCommands(context: vscode.ExtensionContext) {
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand('adelfa.start', () => {
+    vscode.commands.registerCommand('abella.start', () => {
       if (client) {
-        vscode.window.showWarningMessage('Adelfa server already running');
+        vscode.window.showWarningMessage('Abella server already running');
         return;
       }
-      client = new AdelfaLanguageClient(grammar);
+      client = new AbellaLanguageClient(grammar);
     }),
   );
 }

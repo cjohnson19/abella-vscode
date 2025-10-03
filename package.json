@@ -1,30 +1,30 @@
 {
-  "name": "adelfa-vscode",
-  "displayName": "Adelfa",
-  "description": "Language support for the Adelfa proof assistant",
+  "name": "abella-vscode",
+  "displayName": "Abella",
+  "description": "Language support for the Abella proof assistant",
   "license": "MIT",
   "keywords": [
-    "Adelfa",
+    "Abella",
     "LF"
   ],
-  "homepage": "https://adelfa-prover.org",
+  "homepage": "https://abella-prover.org",
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/adelfa-prover/adelfa-vscode"
+    "url": "https://github.com/abella-prover/abella-vscode"
   },
   "bugs": {
-    "url": "https://github.com/adelfa-prover/adelfa-vscode/issues"
+    "url": "https://github.com/abella-prover/abella-vscode/issues"
   },
   "icon": "images/icon.png",
-  "author": "Adelfa Prover",
+  "author": "Chase Johnson <cjohnson19@pm.me>",
   "pricing": "Free",
   "galleryBanner": {
     "color": "#000000",
     "theme": "dark"
   },
   "version": "0.1.1",
-  "publisher": "adelfa",
+  "publisher": "abella",
   "engines": {
     "vscode": "^1.94.0"
   },
@@ -35,16 +35,16 @@
   "main": "./dist/extension.js",
   "contributes": {
     "configuration": {
-      "title": "Adelfa",
+      "title": "Abella",
       "properties": {
-        "adelfa.path": {
+        "abella.path": {
           "type": "string",
-          "default": "adelfa",
-          "description": "Path to the Adelfa executable"
+          "default": "abella",
+          "description": "Path to the Abella executable"
         },
-        "adelfa.autoOpen": {
+        "abella.autoOpen": {
           "type": "boolean",
-          "description": "Automatically open the Adelfa output",
+          "description": "Automatically open the Abella output",
           "default": true
         },
         "adelfa.infoviewTheme": {
@@ -56,12 +56,12 @@
     },
     "languages": [
       {
-        "id": "adelfa",
+        "id": "abella",
         "aliases": [
-          "Adelfa"
+          "Abella"
         ],
         "extensions": [
-          ".ath"
+          ".thm"
         ],
         "configuration": "./language-configuration.json"
       },
@@ -78,9 +78,9 @@
     ],
     "grammars": [
       {
-        "language": "adelfa",
-        "scopeName": "source.adelfa",
-        "path": "./syntaxes/adelfa.tmLanguage.json"
+        "language": "abella",
+        "scopeName": "source.abella",
+        "path": "./syntaxes/abella.tmLanguage.json"
       },
       {
         "language": "lf",
@@ -90,60 +90,45 @@
     ],
     "repository": {
       "type": "git",
-      "url": "https://github.com/adelfa-prover/adelfa-vscode"
+      "url": "https://github.com/abella-prover/abella-vscode"
     },
     "commands": [
       {
-        "command": "adelfa.endProcess",
-        "title": "Adelfa: End Process"
+        "command": "abella.endProcess",
+        "title": "Abella: End Process"
       },
       {
-        "command": "adelfa.restart",
-        "title": "Adelfa: Restart Extension"
+        "command": "abella.restart",
+        "title": "Abella: Restart Extension"
       },
       {
-        "command": "adelfa.showOutput",
-        "title": "Adelfa: Show / Open Info view"
+        "command": "abella.showOutput",
+        "title": "Abella: Show / Open Info view"
       },
       {
-        "command": "adelfa.start",
-        "title": "Adelfa: Start Extension"
+        "command": "abella.start",
+        "title": "Abella: Start Extension"
       }
     ]
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
-    "compile": "npm run check-types && npm run lint && node esbuild.js",
+    "compile": "npm run check-types && node esbuild.js",
     "watch": "npm-run-all -p watch:*",
     "watch:esbuild": "node esbuild.js --watch",
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
-    "package": "npm run check-types && npm run lint && node esbuild.js --production",
-    "compile-tests": "tsc -p tsconfig.test.json",
-    "watch-tests": "tsc -p tsconfig.test.json -w",
-    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "package": "npm run check-types && node esbuild.js --production",
     "check-types": "tsc --noEmit",
-    "lint": "eslint src --ext .ts",
-    "lint:fix": "eslint src --ext .ts --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,md}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,md}\"",
     "format:all": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\" --ignore-path .prettierignore",
-    "lint-and-format": "npm run lint:fix && npm run format",
-    "test": "vscode-test",
-    "test:simple": "npm run compile && vscode-test",
     "prepare": "husky install"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.8",
     "@types/node": "20.x",
     "@types/vscode": "^1.94.0",
-    "@typescript-eslint/eslint-plugin": "^8.7.0",
-    "@typescript-eslint/parser": "^8.7.0",
-    "@vscode/test-cli": "^0.0.10",
-    "@vscode/test-electron": "^2.4.1",
     "esbuild": "^0.24.0",
-    "eslint": "^9.11.1",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-prettier": "^5.5.4",
     "glob": "^10.3.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.6",
@@ -154,7 +139,6 @@
   },
   "lint-staged": {
     "src/**/*.{ts,tsx}": [
-      "eslint --fix",
       "prettier --write"
     ],
     "**/*.{json,md}": [

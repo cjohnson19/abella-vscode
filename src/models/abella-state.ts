@@ -2,7 +2,7 @@ import type { ParsedPath } from 'path';
 import { Position, Range } from 'vscode';
 import type { CommandWithOutput, ErrorInfo } from './types';
 
-export class AdelfaState {
+export class AbellaState {
   private _commands: CommandWithOutput[] = [];
   private _filePath: ParsedPath | undefined;
   private _fileContent: string | undefined;

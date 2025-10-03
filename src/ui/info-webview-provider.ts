@@ -22,8 +22,8 @@ export class InfoWebviewProvider implements Disposable {
     }
 
     this.panel = window.createWebviewPanel(
-      'adelfa',
-      'Adelfa',
+      'abella',
+      'Abella',
       { viewColumn: ViewColumn.Beside, preserveFocus: true },
       {
         enableScripts: true,

@@ -1,10 +1,10 @@
 import { workspace } from 'vscode';
 
-export class AdelfaConfig {
-  private static readonly SECTION = 'adelfa';
+export class AbellaConfig {
+  private static readonly SECTION = 'abella';
 
-  static get adelfaPath(): string {
-    return workspace.getConfiguration(this.SECTION).get<string>('path', 'adelfa');
+  static get abellaPath(): string {
+    return workspace.getConfiguration(this.SECTION).get<string>('path', 'abella');
   }
 
   static get autoOpen(): boolean {

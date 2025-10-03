@@ -10,7 +10,7 @@ export class WebviewContent {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Adelfa</title>
+  <title>Abella</title>
   <style>
     code {
       background-color: var(--vscode-editor-background);
@@ -18,7 +18,7 @@ export class WebviewContent {
   </style>
 </head>
 <body>
-  <h1>Adelfa</h1>
+  <h1>Abella</h1>
 
   <div id="message">
     <p>Loading</p>
@@ -45,7 +45,7 @@ export class WebviewContent {
     window.addEventListener("message", async (event) => {
       message.innerHTML = event.data.message ? \`<p>\${event.data.message}<p>\` : "";
       content.innerHTML = event.data.code ? highlighter.codeToHtml(event.data.code, {
-        lang: "adelfa",
+        lang: "abella",
         theme: "${this.theme}"
       }) : "";
     });
