@@ -1,0 +1,206 @@
+{
+  "fileTypes": ["thm"],
+  "name": "abella",
+  "patterns": [
+    {
+      "match": "\\b(Import|Specification)\\b",
+      "comment": "Vernacular import keywords",
+      "name": "keyword.control.import.abella"
+    },
+    {
+      "match": "(Theorem)\\s+([a-zA-Z][a-zA-Z0-9_']*)",
+      "comment": "Theorem declarations",
+      "captures": {
+        "1": {
+          "name": "keyword.source.abella"
+        },
+        "2": {
+          "name": "entity.name.function.theorem.abella"
+        }
+      }
+    },
+    {
+      "begin": "(Split)\\s+[a-zA-Z][a-zA-Z0-9_']*\\s+(as)",
+      "end": "\\.",
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.source.abella"
+        },
+        "2": {
+          "name": "keyword.source.abella"
+        },
+        "3": {
+          "name": "entity.name.function.theorem.abella"
+        },
+        "5": {
+          "name": "entity.name.function.theorem.abella"
+        }
+      },
+      "patterns": [
+        {
+          "match": "([a-zA-Z][a-zA-Z0-9_']*)",
+          "captures": {
+            "1": {
+              "name": "entity.name.function.theorem.abella"
+            }
+          }
+        }
+      ],
+      "comment": "Split as declarations"
+    },
+    {
+      "match": "(Define)\\s+([a-zA-Z_][a-zA-Z0-9_']*)",
+      "comment": "Definitions",
+      "captures": {
+        "1": {
+          "name": "keyword.source.abella"
+        },
+        "2": {
+          "name": "entity.name.function.abella"
+        }
+      }
+    },
+    {
+      "match": "(Inductive)\\s+([a-zA-Z][a-zA-Z0-9_']*)",
+      "comment": "Inductive type declarations",
+      "captures": {
+        "1": {
+          "name": "keyword.source.abella"
+        },
+        "2": {
+          "name": "entity.name.type.abella"
+        }
+      }
+    },
+    {
+      "match": "(Ltac)\\s+([a-zA-Z][a-zA-Z0-9_']*)",
+      "comment": "Ltac declarations",
+      "captures": {
+        "1": {
+          "name": "keyword.source.abella"
+        },
+        "2": {
+          "name": "entity.name.function.ltac"
+        }
+      }
+    },
+    {
+      "match": "\\b(Set|search_depth|witnesses|on|off|Query)\\b",
+      "comment": "Vernacular keywords",
+      "name": "keyword.source.abella"
+    },
+    {
+      "match": "\\b(skip|Abort)\\b",
+      "comment": "Admits are bad",
+      "name": "invalid.illegal.admit.abella"
+    },
+    {
+      "match": ":|\\||->|\\{|\\}|@|\\+|#|\\*",
+      "comment": "Operators",
+      "name": "keyword.operator.abella"
+    },
+    {
+      "match": "\\b(forall|exists|nabla|type|Kind|Type|prop)\\b",
+      "comment": "Type keywords",
+      "name": "support.type.abella"
+    },
+    {
+      "match": "\\b(try|repeat|progress|set|fresh|solve|now|first)\\b",
+      "comment": "Ltac keywords",
+      "name": "keyword.control.ltac"
+    },
+    {
+      "match": "\\b(into|with|eqn|by|as|using|to)\\b",
+      "comment": "Common Ltac connectors",
+      "name": "keyword.control.ltac"
+    },
+    {
+      "match": "\\b(match|fun|with|returns|end|let|in|if|then|else)\\b",
+      "comment": "Gallina keywords",
+      "name": "keyword.control.gallina"
+    },
+    {
+      "match": "\\b(intros|induction|case|assert|split|unfold|exists|left|right|clear|search|backchain|apply|applys|rename|permute)\\b",
+      "comment": "Ltac builtins",
+      "name": "support.function.builtin.ltac"
+    },
+    {
+      "match": "\\b(nil|o|olist)\\b",
+      "name": "constant.language.nil.gallina"
+    },
+    {
+      "match": "\\bn((0(x|X)[0-9a-fA-F]+)|([0-9]+(\\.[0-9]+)?))\\b",
+      "name": "constant.numeric.gallina"
+    },
+    {
+      "match": "\\btrue\\b",
+      "name": "constant.language.boolean.true.gallina"
+    },
+    {
+      "match": "\\bfalse\\b",
+      "name": "constant.language.boolean.false.gallina"
+    },
+    {
+      "match": "\\b_\\b",
+      "name": "constant.language.wildcard.abella"
+    },
+    {
+      "begin": "\"",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.string.begin.abella"
+        }
+      },
+      "end": "\"",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.string.end.abella"
+        }
+      },
+      "name": "string.quoted.double.abella",
+      "patterns": [
+        {
+          "match": "\\\\(x\\h{2}|[0-2][0-7]{,2}|3[0-6][0-7]|37[0-7]?|[4-7][0-7]?|.)",
+          "name": "constant.character.escape.abella"
+        }
+      ]
+    },
+    {
+      "applyEndPatternLast": 1,
+      "begin": "/\\*(?!#)",
+      "end": "\\*/",
+      "name": "comment.block.abella",
+      "patterns": [
+        {
+          "include": "#block_comment"
+        }
+      ]
+    },
+    {
+      "applyEndPatternLast": 1,
+      "begin": "%",
+      "end": "\\n",
+      "name": "comment.line.abella",
+      "patterns": [
+        {
+          "include": "#block_comment"
+        }
+      ]
+    }
+  ],
+  "repository": {
+    "block_comment": {
+      "applyEndPatternLast": 1,
+      "begin": "\\(\\*(?!#)",
+      "end": "\\*\\)",
+      "name": "comment.block.abella",
+      "patterns": [
+        {
+          "include": "#block_comment"
+        }
+      ]
+    }
+  },
+  "scopeName": "source.abella",
+  "uuid": "CDE1AD3A-C094-457D-B321-93009C6BCFDB"
+}

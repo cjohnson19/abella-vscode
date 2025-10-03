@@ -12,8 +12,8 @@ export class ProcessCommunicator {
 
       const onData = (chunk: Buffer) => {
         data += chunk.toString();
-        if (data.includes('>>')) {
-          data = data.replace(/.*>>/g, '');
+        if (data.includes('<')) {
+          data = data.replace(/.*</g, '');
           cleanup();
           resolve(data);
         }
@@ -26,6 +26,7 @@ export class ProcessCommunicator {
 
       const onTimeout = () => {
         cleanup();
+        console.log(data);
         reject(new Error(`Command timed out after ${timeout}ms`));
       };
 

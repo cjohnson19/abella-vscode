@@ -1,13 +1,13 @@
 import { window } from 'vscode';
-import type { AdelfaLanguageClient } from '../adelfa-language-client';
+import type { AbellaLanguageClient } from '../abella-language-client';
 
 export class ShowOutputCommand {
-  constructor(private getClient: () => AdelfaLanguageClient | undefined) {}
+  constructor(private getClient: () => AbellaLanguageClient | undefined) {}
 
   execute(): void {
     const client = this.getClient();
     if (!client) {
-      window.showErrorMessage('Adelfa server is not running');
+      window.showErrorMessage('Abella server is not running');
       return;
     }
     client.showOutput();
