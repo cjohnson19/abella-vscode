@@ -1,7 +1,7 @@
-import type { AdelfaLanguageClient } from '../adelfa-language-client';
+import type { AbellaLanguageClient } from '../abella-language-client';
 
 export class EndProcessCommand {
-  constructor(private getClient: () => AdelfaLanguageClient | undefined) {}
+  constructor(private getClient: () => AbellaLanguageClient | undefined) {}
 
   async execute(): Promise<void> {
     const client = this.getClient();

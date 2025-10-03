@@ -7,21 +7,21 @@ import {
   type TextDocumentChangeEvent,
   type Disposable,
 } from 'vscode';
-import { AdelfaState } from './models/adelfa-state';
-import { AdelfaProcessManager } from './services/adelfa-process-manager';
+import { AbellaState } from './models/abella-state';
+import { AbellaProcessManager } from './services/abella-process-manager';
 import { CommandParser } from './services/command-parser';
 import { CommandExecutor } from './services/command-executor';
 import { DecorationManager } from './services/decoration-manager';
 import { InfoWebviewProvider } from './ui/info-webview-provider';
-import { AdelfaConfig } from './config/adelfa-config';
+import { AbellaConfig } from './config/abella-config';
 import { maxPosition } from './util/position';
 import { Debouncer } from './util/debounce';
 import './util/array';
 import type { Command } from './models/command';
 
-export class AdelfaLanguageClient {
-  private state: AdelfaState;
-  private processManager: AdelfaProcessManager;
+export class AbellaLanguageClient {
+  private state: AbellaState;
+  private processManager: AbellaProcessManager;
   private commandParser: CommandParser;
   private commandExecutor: CommandExecutor;
   private decorationManager: DecorationManager;
@@ -32,8 +32,8 @@ export class AdelfaLanguageClient {
   private isProcessingUpdate = false;
 
   constructor(grammar: string) {
-    this.state = new AdelfaState();
-    this.processManager = new AdelfaProcessManager(AdelfaConfig.adelfaPath);
+    this.state = new AbellaState();
+    this.processManager = new AbellaProcessManager(AbellaConfig.abellaPath);
     this.commandParser = new CommandParser();
     this.commandExecutor = new CommandExecutor(this.processManager, this.state);
     this.decorationManager = new DecorationManager();
@@ -44,7 +44,7 @@ export class AdelfaLanguageClient {
 
     this.disposables.push(workspace.onDidChangeTextDocument(this.handleTextChange.bind(this)));
 
-    if (window.activeTextEditor?.document.languageId === 'adelfa') {
+    if (window.activeTextEditor?.document.languageId === 'abella') {
       this.loadNewFile();
     }
   }
@@ -64,7 +64,7 @@ export class AdelfaLanguageClient {
 
   async loadNewFile(): Promise<void> {
     const editor = window.activeTextEditor;
-    if (!editor || editor.document.languageId !== 'adelfa') {
+    if (!editor || editor.document.languageId !== 'abella') {
       return;
     }
 
@@ -83,7 +83,7 @@ export class AdelfaLanguageClient {
 
       this.state.setFileContent(editor.document.getText());
 
-      if (AdelfaConfig.autoOpen) {
+      if (AbellaConfig.autoOpen) {
         this.infoProvider.openPanel();
         this.showInfoAtPosition(window.activeTextEditor!.selection.active);
       }
@@ -91,7 +91,7 @@ export class AdelfaLanguageClient {
       await this.updateFile();
       this.showInfoAtPosition(editor.selection.active);
     } catch (error) {
-      window.showErrorMessage(`Failed to start Adelfa: ${error}`);
+      window.showErrorMessage(`Failed to start Abella: ${error}`);
     }
   }
 
@@ -114,7 +114,7 @@ export class AdelfaLanguageClient {
 
   private handleTextChange(event: TextDocumentChangeEvent): void {
     if (
-      event.document.languageId !== 'adelfa' ||
+      event.document.languageId !== 'abella' ||
       event.document !== window.activeTextEditor?.document
     ) {
       return;
@@ -147,7 +147,7 @@ export class AdelfaLanguageClient {
 
   showOutput(): void {
     if (!this.processManager.isRunning()) {
-      window.showErrorMessage('Adelfa is not running');
+      window.showErrorMessage('Abella is not running');
       return;
     }
     this.infoProvider.openPanel();
@@ -155,7 +155,7 @@ export class AdelfaLanguageClient {
 
   private async updateFile(): Promise<void> {
     const editor = window.activeTextEditor;
-    if (!editor || editor.document.languageId !== 'adelfa') {
+    if (!editor || editor.document.languageId !== 'abella') {
       return;
     }
 
@@ -219,7 +219,7 @@ export class AdelfaLanguageClient {
     const command = this.state.getLastCommandBeforePosition(position);
     if (command) {
       this.infoProvider.update({
-        code: `>> ${command.command}\n\n${command.output}`,
+        code: `Abella < ${command.command}\n\n${command.output}`,
       });
     } else {
       this.infoProvider.update({ message: 'No command found' });

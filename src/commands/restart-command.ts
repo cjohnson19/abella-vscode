@@ -1,9 +1,9 @@
-import { AdelfaLanguageClient } from '../adelfa-language-client';
+import { AbellaLanguageClient } from '../abella-language-client';
 
 export class RestartCommand {
   constructor(
-    private getClient: () => AdelfaLanguageClient | undefined,
-    private setClient: (client: AdelfaLanguageClient | undefined) => void,
+    private getClient: () => AbellaLanguageClient | undefined,
+    private setClient: (client: AbellaLanguageClient | undefined) => void,
     private grammar: string,
   ) {}
 
@@ -12,6 +12,6 @@ export class RestartCommand {
     if (client) {
       await client.dispose();
     }
-    this.setClient(new AdelfaLanguageClient(this.grammar));
+    this.setClient(new AbellaLanguageClient(this.grammar));
   }
 }

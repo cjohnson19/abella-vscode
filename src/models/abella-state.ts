@@ -3,7 +3,7 @@ import { Position, Range } from 'vscode';
 import type { CommandWithOutput } from './command';
 import type { ErrorInfo } from './error-info';
 
-export class AdelfaState {
+export class AbellaState {
   private _commands: CommandWithOutput[] = [];
   private _filePath: ParsedPath | undefined;
   private _fileContent: string | undefined;

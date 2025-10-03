@@ -3,18 +3,18 @@ import type { ParsedPath } from 'path';
 import { window } from 'vscode';
 import { ProcessCommunicator } from './process-communicator';
 
-export class AdelfaProcessManager {
+export class AbellaProcessManager {
   private process: ChildProcess | undefined;
   private communicator: ProcessCommunicator | undefined;
 
-  constructor(private adelfaPath: string) {}
+  constructor(private abellaPath: string) {}
 
   async start(filePath: ParsedPath): Promise<void> {
     if (this.process) {
-      throw new Error('Adelfa process is already running');
+      throw new Error('Abella process is already running');
     }
 
-    this.process = spawn(this.adelfaPath, {
+    this.process = spawn(this.abellaPath, {
       cwd: filePath.dir,
       env: globalThis.process.env,
       shell: true,
@@ -41,7 +41,7 @@ export class AdelfaProcessManager {
     }
 
     return new Promise(resolve => {
-      window.showInformationMessage('Ending Adelfa process');
+      window.showInformationMessage('Ending Abella process');
       this.process!.kill();
       this.process!.on('exit', () => {
         this.process = undefined;
@@ -53,7 +53,7 @@ export class AdelfaProcessManager {
 
   async sendCommand(command: string): Promise<string> {
     if (!this.communicator) {
-      throw new Error('Adelfa process is not running');
+      throw new Error('Abella process is not running');
     }
 
     const result = await this.communicator.sendCommand(`${command}\x0d`);

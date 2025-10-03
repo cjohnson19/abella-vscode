@@ -1,7 +1,7 @@
 import type { Command, CommandWithOutput } from '../models/command';
 import type { ErrorInfo } from '../models/error-info';
-import type { AdelfaProcessManager } from './adelfa-process-manager';
-import type { AdelfaState } from '../models/adelfa-state';
+import type { AbellaProcessManager } from './abella-process-manager';
+import type { AbellaState } from '../models/abella-state';
 import { CommandQueue } from './command-queue';
 import type { Position } from 'vscode';
 
@@ -9,8 +9,8 @@ export class CommandExecutor {
   private commandQueue: CommandQueue<void>;
 
   constructor(
-    private processManager: AdelfaProcessManager,
-    private state: AdelfaState,
+    private processManager: AbellaProcessManager,
+    private state: AbellaState,
   ) {
     this.commandQueue = new CommandQueue<void>();
   }
