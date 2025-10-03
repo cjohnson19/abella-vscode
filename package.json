@@ -2,8 +2,29 @@
   "name": "adelfa-vscode",
   "displayName": "Adelfa",
   "description": "Language support for the Adelfa proof assistant",
-  "version": "0.1.0",
-  "publisher": "adelfa-prover",
+  "license": "MIT",
+  "keywords": [
+    "Adelfa",
+    "LF"
+  ],
+  "homepage": "https://adelfa-prover.org",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/adelfa-prover/adelfa-vscode"
+  },
+  "bugs": {
+    "url": "https://github.com/adelfa-prover/adelfa-vscode/issues"
+  },
+  "icon": "images/icon.png",
+  "author": "Adelfa Prover",
+  "pricing": "Free",
+  "galleryBanner": {
+    "color": "#000000",
+    "theme": "dark"
+  },
+  "version": "0.1.1",
+  "publisher": "adelfa",
   "engines": {
     "vscode": "^1.94.0"
   },

@@ -22,7 +22,6 @@ export class CommandExecutor {
       processor: async () => {
         for (const command of commands) {
           try {
-            // Track pending command
             this.state.addPendingCommand(command.command);
 
             const output = await this.processManager.sendCommand(command.command);
@@ -32,7 +31,6 @@ export class CommandExecutor {
             };
             this.state.addCommand(commandWithOutput);
           } catch (error) {
-            // Remove from pending on error
             this.state.removePendingCommand(command.command);
 
             const errorInfo: ErrorInfo = {

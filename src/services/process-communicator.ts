@@ -38,7 +38,6 @@ export class ProcessCommunicator {
         this.process.stderr?.removeListener('data', onError);
       };
 
-      // Set up timeout
       timeoutId = setTimeout(onTimeout, timeout);
 
       this.process.stdout?.on('data', onData);

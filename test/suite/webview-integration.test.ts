@@ -149,6 +149,19 @@ suite('Adelfa Webview Integration Tests', () => {
     );
   });
 
+  test('Should display no command found at startup', async function () {
+    this.timeout(25000);
+    const files = await testHelper.createAdelfaFiles(
+      TestFixtures.basicNat,
+      TestFixtures.simpleTheorem,
+    );
+    await testHelper.openFile(files.athFile!);
+
+    const webviewContent = await testHelper.getWebviewContent();
+    await testHelper.waitForProcessingComplete(5000);
+    assert.equal(webviewContent, 'No command found');
+  });
+
   test('Should display theorem states in webview when inserting theorems', async function () {
     this.timeout(25000);
 
@@ -251,7 +264,7 @@ suite('Adelfa Webview Integration Tests', () => {
     }
   });
 
-  test('Should demonstrate theorem state progression in webview', async function () {
+  test('Should demonstrate theorem state progression in webview:', async function () {
     this.timeout(25000);
 
     const files = await testHelper.createAdelfaFiles(
@@ -346,7 +359,7 @@ Theorem simple_proof<|> : forall L, {L : list} => exists R, {R : eq_list L L}.
     );
 
     // Check extension and client
-    const extension = vscode.extensions.getExtension('adelfa-prover.adelfa-vscode');
+    const extension = vscode.extensions.getExtension('adelfa.adelfa-vscode');
     assert.ok(extension, 'Extension should be found');
 
     if (!extension.isActive) {

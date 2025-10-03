@@ -1,10 +1,15 @@
 import { ViewColumn, window, type Disposable, type WebviewPanel } from 'vscode';
 import { WebviewContent } from './webview-content';
 
+interface WebviewMessage {
+  command: string;
+}
+
 export class InfoWebviewProvider implements Disposable {
   private panel: WebviewPanel | undefined;
   private webviewContent: WebviewContent;
   private currentMessage: { code?: string; message?: string } | undefined;
+  private isWebviewReady = false;
 
   constructor(grammar: string) {
     this.webviewContent = new WebviewContent(grammar);
@@ -18,7 +23,7 @@ export class InfoWebviewProvider implements Disposable {
 
     this.panel = window.createWebviewPanel(
       'adelfa',
-      'Adelfa Info',
+      'Adelfa',
       { viewColumn: ViewColumn.Beside, preserveFocus: true },
       {
         enableScripts: true,
@@ -27,9 +32,20 @@ export class InfoWebviewProvider implements Disposable {
     );
 
     this.panel.webview.html = this.webviewContent.getHtml();
+    this.isWebviewReady = false;
+
+    this.panel.webview.onDidReceiveMessage((message: WebviewMessage) => {
+      if (message.command === 'ready') {
+        this.isWebviewReady = true;
+        if (this.currentMessage) {
+          this.panel!.webview.postMessage(this.currentMessage);
+        }
+      }
+    });
 
     this.panel.onDidDispose(() => {
       this.panel = undefined;
+      this.isWebviewReady = false;
     });
   }
 
@@ -38,7 +54,12 @@ export class InfoWebviewProvider implements Disposable {
       return false;
     }
     this.currentMessage = message;
-    return this.panel.webview.postMessage(message);
+
+    if (this.isWebviewReady) {
+      return this.panel.webview.postMessage(message);
+    }
+
+    return true;
   }
 
   getCurrentContent(): string | null {

@@ -7,7 +7,7 @@ export class WebviewContent {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Adelfa Info</title>
+  <title>Adelfa</title>
   <style>
     code {
       background-color: var(--vscode-editor-background);
@@ -414,9 +414,9 @@ export class WebviewContent {
     });
     content.scrollIntoView({ behavior: "smooth", block: "end" });
     const vscode = acquireVsCodeApi();
-    document.addEventListener("load", (event) => {
-      vscode.postMessage({ command: 'update' });
-    });
+    
+    // Send ready message only after highlighter is fully loaded
+    vscode.postMessage({ command: 'ready' });
   </script>
 </body>
 </html>`;

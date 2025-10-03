@@ -108,6 +108,35 @@ export class AdelfaState {
     return commands.length > 0 ? commands[commands.length - 1] : undefined;
   }
 
+  getLineProcessingStatuses(): Map<number, 'fully-processed' | 'partially-processed' | 'error'> {
+    const lineStatuses = new Map<number, 'fully-processed' | 'partially-processed' | 'error'>();
+
+    if (this._errorInfo) {
+      lineStatuses.set(this._errorInfo.range.start.line, 'error');
+    }
+
+    if (this._commands.length === 0) return lineStatuses;
+
+    const {
+      // start: { line: startLine },
+      end: { line: endLine, character: endChar },
+    } = this.evaluatedRange;
+    for (let line = 0; line <= endLine; line++) {
+      if (lineStatuses.get(line) === 'error') continue;
+      if (line === endLine) {
+        const finalColumn = this._fileContent?.split('\n').at(line)?.trimEnd().length;
+        if (finalColumn && endChar < finalColumn) {
+          lineStatuses.set(line, 'partially-processed');
+        } else {
+          lineStatuses.set(line, 'fully-processed');
+        }
+      } else if (!lineStatuses.has(line)) {
+        lineStatuses.set(line, 'fully-processed');
+      }
+    }
+    return lineStatuses;
+  }
+
   reset(): void {
     this._commands = [];
     this._filePath = undefined;

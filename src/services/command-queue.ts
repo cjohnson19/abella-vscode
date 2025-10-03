@@ -41,7 +41,6 @@ export class CommandQueue<T> {
     this._isProcessing = true;
     this.currentOperation = this.queue.shift()!;
 
-    // Process the operation if it has a processor
     if (this.currentOperation.processor) {
       try {
         await this.currentOperation.processor();
@@ -75,7 +74,6 @@ export class CommandQueue<T> {
   }
 
   clear(): void {
-    // Reject all pending operations
     this.queue.forEach(op => op.reject(new Error('Queue cleared')));
     this.queue = [];
 

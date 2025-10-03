@@ -32,7 +32,6 @@ export class AdelfaLanguageClient {
   private isProcessingUpdate = false;
 
   constructor(grammar: string) {
-    // Initialize services
     this.state = new AdelfaState();
     this.processManager = new AdelfaProcessManager(AdelfaConfig.adelfaPath);
     this.commandParser = new CommandParser();
@@ -40,19 +39,11 @@ export class AdelfaLanguageClient {
     this.decorationManager = new DecorationManager();
     this.infoProvider = new InfoWebviewProvider(grammar);
 
-    // Initialize debouncers
     this.cursorDebouncer = new Debouncer(100); // 100ms delay for cursor movements
     this.textChangeDebouncer = new Debouncer(300); // 300ms delay for text changes
 
-    // Register text change listener
     this.disposables.push(workspace.onDidChangeTextDocument(this.handleTextChange.bind(this)));
 
-    // Auto-open info panel if configured
-    if (AdelfaConfig.autoOpen) {
-      this.infoProvider.openPanel();
-    }
-
-    // Load file if active editor is Adelfa
     if (window.activeTextEditor?.document.languageId === 'adelfa') {
       this.loadNewFile();
     }
@@ -77,31 +68,27 @@ export class AdelfaLanguageClient {
       return;
     }
 
-    // Reset state and stop existing process
     this.state.reset();
     await this.processManager.stop();
 
-    // Update UI
+    this.decorationManager.clearOverviewDecorations(editor);
+
     this.infoProvider.update({ message: 'Loading file' });
 
-    // Parse file path and start process
     const filePath = parse(editor.document.fileName);
     this.state.setFilePath(filePath);
 
     try {
       await this.processManager.start(filePath);
 
-      // Set initial file content
       this.state.setFileContent(editor.document.getText());
 
-      // Parse and execute initial commands up to cursor position
-      const initialCommands = this.commandParser.getCommandsInRange(
-        editor.document,
-        new Position(0, 0),
-        editor.selection.active,
-      );
+      if (AdelfaConfig.autoOpen) {
+        this.infoProvider.openPanel();
+        this.showInfoAtPosition(window.activeTextEditor!.selection.active);
+      }
 
-      await this.fillCommands(initialCommands);
+      await this.updateFile();
       this.showInfoAtPosition(editor.selection.active);
     } catch (error) {
       window.showErrorMessage(`Failed to start Adelfa: ${error}`);
@@ -109,7 +96,6 @@ export class AdelfaLanguageClient {
   }
 
   updateInfoView(event: TextEditorSelectionChangeEvent): void {
-    // Debounce cursor movements to avoid excessive updates
     const debouncedUpdate = this.cursorDebouncer.debounce(async () => {
       if (!this.isProcessingUpdate) {
         this.isProcessingUpdate = true;
@@ -134,7 +120,6 @@ export class AdelfaLanguageClient {
       return;
     }
 
-    // Debounce text changes
     const debouncedUpdate = this.textChangeDebouncer.debounce(async () => {
       if (!this.isProcessingUpdate) {
         this.isProcessingUpdate = true;
@@ -147,11 +132,9 @@ export class AdelfaLanguageClient {
             }
           }
 
-          // Invalidate commands after the change position
           await this.undoCommandsUntilPosition(earliestChangePosition);
           this.state.setFileContent(event.document.getText());
 
-          // Re-evaluate up to current cursor position
           await this.updateFile();
         } finally {
           this.isProcessingUpdate = false;
@@ -164,7 +147,7 @@ export class AdelfaLanguageClient {
 
   showOutput(): void {
     if (!this.processManager.isRunning()) {
-      window.showErrorMessage('Adelfa server is not running');
+      window.showErrorMessage('Adelfa is not running');
       return;
     }
     this.infoProvider.openPanel();
@@ -186,11 +169,14 @@ export class AdelfaLanguageClient {
       c.range.start.isAfterOrEqual(this.state.evaluatedRange.end),
     );
 
-    await this.fillCommands(commandsToFill);
+    await this.executeCommands(commandsToFill);
     this.decorationManager.updateEvaluatedRange(editor, this.state.evaluatedRange);
+
+    const lineStatuses = this.state.getLineProcessingStatuses();
+    this.decorationManager.updateGutterDecorations(editor, lineStatuses);
   }
 
-  private async fillCommands(commands: Command[]): Promise<void> {
+  private async executeCommands(commands: Command[]): Promise<void> {
     const editor = window.activeTextEditor;
 
     if (this.state.errorInfo === undefined) {
@@ -200,27 +186,28 @@ export class AdelfaLanguageClient {
     try {
       await this.commandExecutor.executeCommands(commands);
     } catch {
-      // Error is already handled in commandExecutor and stored in state
       if (this.state.errorInfo) {
         this.decorationManager.showError(editor, this.state.errorInfo.range);
       }
     }
-
-    if (editor?.selection.active && editor.document.languageId === 'adelfa') {
-      this.showInfoAtPosition(editor.selection.active);
-    }
   }
 
   private async undoCommandsUntilPosition(position: Position): Promise<void> {
-    // Clear error if it's after the edit position
-    if (this.state.errorInfo?.range.end.isAfter(position)) {
+    if (this.state.errorInfo?.range.end.isAfterOrEqual(position)) {
       this.state.setErrorInfo(undefined);
     }
 
     await this.commandExecutor.undoCommandsAfterPosition(position);
+
+    const editor = window.activeTextEditor;
+    if (editor) {
+      const lineStatuses = this.state.getLineProcessingStatuses();
+      this.decorationManager.updateGutterDecorations(editor, lineStatuses);
+    }
   }
 
   private showInfoAtPosition(position: Position): void {
+    // If there is some error before `position`, we show the error instead.
     if (this.state.errorInfo?.range.start.isBeforeOrEqual(position)) {
       this.infoProvider.update({
         code: `>> ${this.state.errorInfo.command}\n\n${this.state.errorInfo.message}`,
@@ -244,7 +231,7 @@ export class AdelfaLanguageClient {
   }
 
   /**
-   * Get the current webview content for testing purposes
+   * Get the current webview content, only for testing purposes
    */
   getWebviewContent(): string | null {
     return this.infoProvider.getCurrentContent();
@@ -262,20 +249,5 @@ export class AdelfaLanguageClient {
    */
   isProcessing(): boolean {
     return this.isProcessingUpdate || this.commandExecutor.isProcessing();
-  }
-
-  /**
-   * Get the current processing status for debugging
-   */
-  getProcessingStatus(): {
-    isProcessingUpdate: boolean;
-    isProcessingCommands: boolean;
-    queueSize: number;
-  } {
-    return {
-      isProcessingUpdate: this.isProcessingUpdate,
-      isProcessingCommands: this.commandExecutor.isProcessing(),
-      queueSize: this.commandExecutor.getQueueSize(),
-    };
   }
 }

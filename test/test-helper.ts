@@ -147,7 +147,7 @@ export class AdelfaTestHelper {
   async getWebviewContent(): Promise<string | null> {
     try {
       // Get the extension instance
-      const extension = vscode.extensions.getExtension('adelfa-prover.adelfa-vscode');
+      const extension = vscode.extensions.getExtension('adelfa.adelfa-vscode');
       if (!extension) {
         return null;
       }
@@ -186,7 +186,7 @@ export class AdelfaTestHelper {
 
     while (Date.now() - startTime < timeoutMs) {
       try {
-        const extension = vscode.extensions.getExtension('adelfa-prover.adelfa-vscode');
+        const extension = vscode.extensions.getExtension('adelfa.adelfa-vscode');
         if (!extension || !extension.isActive) {
           break;
         }
@@ -209,7 +209,6 @@ export class AdelfaTestHelper {
       }
     }
 
-    // If we reach here, timeout occurred
     console.warn(`Timeout waiting for processing to complete after ${timeoutMs}ms`);
   }
 
@@ -389,7 +388,7 @@ refl_list : {L:list} eq_list L L.
 
 append : {L1:list} {L2:list} {L3:list} type.
 append_nil : {L:list} append nil L L.
-append_cons : {N:nat} {L1:list} {L2:list} {L3:list} 
+append_cons : {N:nat} {L1:list} {L2:list} {L3:list}
               {D:append L1 L2 L3} append (cons N L1) L2 (cons N L3).`,
 
   lengthSpec: `nat : type.
@@ -554,7 +553,7 @@ export class TestUtils {
    * Verify extension activation and command registration
    */
   static async verifyExtensionActivation(): Promise<void> {
-    const extension = vscode.extensions.getExtension('adelfa-prover.adelfa-vscode');
+    const extension = vscode.extensions.getExtension('adelfa.adelfa-vscode');
     if (!extension) {
       throw new Error('Extension not found - make sure the extension is properly built and loaded');
     }

@@ -15,16 +15,12 @@ export function getClient(): AdelfaLanguageClient | undefined {
 }
 
 export function activate(context: vscode.ExtensionContext) {
-  // Initialize the client
   client = new AdelfaLanguageClient(grammar);
 
-  // Register event listeners
   registerEventListeners(context);
 
-  // Register commands
   registerCommands(context);
 
-  // Return the API for testing purposes
   return {
     getClient: () => client,
   };
@@ -45,18 +41,15 @@ function registerEventListeners(context: vscode.ExtensionContext) {
 }
 
 function registerCommands(context: vscode.ExtensionContext) {
-  // Helper functions for command handlers
   const setClient = (newClient: AdelfaLanguageClient | undefined) => {
     client = newClient;
   };
 
-  // Create command handlers
   const endProcessCommand = new EndProcessCommand(getClient);
   const restartCommand = new RestartCommand(getClient, setClient, grammar);
   const showOutputCommand = new ShowOutputCommand(getClient);
   const startCommand = new StartCommand(getClient, setClient, grammar);
 
-  // Register commands
   context.subscriptions.push(
     vscode.commands.registerCommand('adelfa.endProcess', () => {
       endProcessCommand.execute();

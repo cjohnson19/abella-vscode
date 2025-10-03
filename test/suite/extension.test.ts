@@ -8,7 +8,7 @@ suite('Extension Test Suite', () => {
     await TestUtils.openTestFile('lists.lf');
 
     // Verify extension is active
-    const extension = vscode.extensions.getExtension('adelfa-prover.adelfa-vscode');
+    const extension = vscode.extensions.getExtension('adelfa.adelfa-vscode');
     assert.ok(extension?.isActive, 'Extension should be active after opening .lf file');
   });
 
@@ -17,7 +17,7 @@ suite('Extension Test Suite', () => {
     await TestUtils.openTestFile('lists.ath');
 
     // Verify extension is active
-    const extension = vscode.extensions.getExtension('adelfa-prover.adelfa-vscode');
+    const extension = vscode.extensions.getExtension('adelfa.adelfa-vscode');
     assert.ok(extension?.isActive, 'Extension should be active after opening .ath file');
   });
 
