@@ -211,7 +211,7 @@ export class AbellaLanguageClient {
     // If there is some error before `position`, we show the error instead.
     if (this.state.errorInfo?.range.start.isBeforeOrEqual(position)) {
       this.infoProvider.update({
-        code: `>> ${this.state.errorInfo.command}\n\n${this.state.errorInfo.message}`,
+        code: `Abella < ${this.state.errorInfo.command}\n\n${this.state.errorInfo.message}`,
       });
       return;
     }

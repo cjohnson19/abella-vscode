@@ -3,6 +3,10 @@ import type { ChildProcess } from 'child_process';
 export class ProcessCommunicator {
   private readonly DEFAULT_TIMEOUT = 30000; // 30 seconds
 
+  isError(data: string): boolean {
+    return data.match(/Error:.*|(Syntax|Typing|Unification|Unknown) error\./) !== null;
+  }
+
   constructor(private process: ChildProcess) {}
 
   async readOutput(timeout: number = this.DEFAULT_TIMEOUT): Promise<string> {
@@ -16,6 +20,9 @@ export class ProcessCommunicator {
           data = data.replace(/.*</g, '');
           cleanup();
           resolve(data);
+        } else if (this.isError(data)) {
+          cleanup();
+          reject(data);
         }
       };
 
