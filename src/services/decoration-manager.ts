@@ -76,6 +76,7 @@ export class DecorationManager {
     const errorRanges: DecorationOptions[] = [];
 
     for (const [lineNumber, status] of lineStatuses) {
+      // How do we get until the last char without needing this magic number?
       const range = new Range(lineNumber, 0, lineNumber, 1000000);
       const decoration: DecorationOptions = { range };
 

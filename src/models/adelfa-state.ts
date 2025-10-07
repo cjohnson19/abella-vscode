@@ -103,6 +103,13 @@ export class AdelfaState {
     return this._commands.filter(c => c.range.start.isAfterOrEqual(position));
   }
 
+  /**
+   * Get all commands, including the ones which include `position` in their range.
+   */
+  getCommandsAfterPositionInclusive(position: Position): CommandWithOutput[] {
+    return this._commands.filter(c => c.range.end.isAfterOrEqual(position));
+  }
+
   getLastCommandBeforePosition(position: Position): CommandWithOutput | undefined {
     const commands = this._commands.filter(c => c.range.end.isBeforeOrEqual(position));
     return commands.length > 0 ? commands[commands.length - 1] : undefined;

@@ -69,7 +69,7 @@ export class CommandExecutor {
       type: 'undo',
       position,
       processor: async () => {
-        const commandsToUndo = this.state.getCommandsAfterPosition(position);
+        const commandsToUndo = this.state.getCommandsAfterPositionInclusive(position);
         for (let i = 0; i < commandsToUndo.length; i++) {
           await this.undoLastCommand();
         }
