@@ -203,6 +203,7 @@ export class AdelfaLanguageClient {
     if (editor) {
       const lineStatuses = this.state.getLineProcessingStatuses();
       this.decorationManager.updateGutterDecorations(editor, lineStatuses);
+      this.decorationManager.updateEvaluatedRange(editor, this.state.evaluatedRange);
     }
   }
 

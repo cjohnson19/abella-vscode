@@ -119,7 +119,10 @@ export class AdelfaState {
     const lineStatuses = new Map<number, 'fully-processed' | 'partially-processed' | 'error'>();
 
     if (this._errorInfo) {
-      lineStatuses.set(this._errorInfo.range.start.line, 'error');
+      const { line } = this._errorInfo.range.start;
+      for (let errLine = line; errLine <= this._errorInfo.range.end.line; errLine++) {
+        lineStatuses.set(errLine, 'error');
+      }
     }
 
     if (this._commands.length === 0) return lineStatuses;
