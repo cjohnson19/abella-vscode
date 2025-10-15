@@ -47,11 +47,11 @@
     },
     {
       "name": "keyword.other.abella",
-      "match": "\\b(Theorem|Specification|Set|Schema|Subgoal|Variables|Nominals)\\b"
+      "match": "\\b(Theorem|Specification|Set|Schema|Subgoal|Variables|Nominals|Close)\\b"
     },
     {
       "name": "support.function.abella",
-      "match": "\\b(forall|exists|case|inst|induction|coinduction|intros|keep|left|right|search|split|on|to|with|assert|prune|permute|backchain|unfold|witness|cut|monotone|clear|unabbrev|by)\\b"
+      "match": "\\b(forall|exists|nabla|case|inst|induction|coinduction|intros|keep|left|right|search|split|on|to|with|assert|prune|permute|backchain|unfold|witness|cut|monotone|clear|unabbrev|by)\\b"
     },
     {
       "name": "support.function.abella",
