@@ -102,6 +102,11 @@ export class AdelfaLanguageClient {
   }
 
   updateInfoView(event: TextEditorSelectionChangeEvent): void {
+    // Only listen to changes in the adelfa editor
+    if (event.textEditor.document.languageId !== 'adelfa') {
+      return;
+    }
+
     const debouncedUpdate = this.cursorDebouncer.debounce(async () => {
       if (!this.isProcessingUpdate) {
         this.isProcessingUpdate = true;
