@@ -6,6 +6,7 @@ import {
   type TextEditorSelectionChangeEvent,
   type TextDocumentChangeEvent,
   type Disposable,
+  type TextEditor,
 } from 'vscode';
 import { AdelfaState } from './models/adelfa-state';
 import { AdelfaProcessManager } from './services/adelfa-process-manager';
@@ -30,6 +31,7 @@ export class AdelfaLanguageClient {
   private textChangeDebouncer: Debouncer;
   private disposables: Disposable[] = [];
   private isProcessingUpdate = false;
+  private activeTextEditor: TextEditor | undefined;
 
   constructor(grammar: string) {
     this.state = new AdelfaState();
@@ -67,6 +69,9 @@ export class AdelfaLanguageClient {
     if (!editor || editor.document.languageId !== 'adelfa') {
       return;
     }
+    if (this.activeTextEditor === editor) {
+      return;
+    }
 
     this.state.reset();
     await this.processManager.stop();
@@ -90,6 +95,7 @@ export class AdelfaLanguageClient {
 
       await this.updateFile();
       this.showInfoAtPosition(editor.selection.active);
+      this.activeTextEditor = editor;
     } catch (error) {
       window.showErrorMessage(`Failed to start Adelfa: ${error}`);
     }
