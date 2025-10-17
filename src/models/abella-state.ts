@@ -107,7 +107,7 @@ export class AbellaState {
    * Get all commands, including the ones which include `position` in their range.
    */
   getCommandsAfterPositionInclusive(position: Position): CommandWithOutput[] {
-    return this._commands.filter(c => c.range.end.isAfterOrEqual(position));
+    return this._commands.filter(c => c.range.end.isAfter(position));
   }
 
   getLastCommandBeforePosition(position: Position): CommandWithOutput | undefined {
