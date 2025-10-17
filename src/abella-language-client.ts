@@ -102,8 +102,8 @@ export class AbellaLanguageClient {
   }
 
   updateInfoView(event: TextEditorSelectionChangeEvent): void {
-    // Only listen to changes in the adelfa editor
-    if (event.textEditor.document.languageId !== 'adelfa') {
+    // Only listen to changes in the abella editor
+    if (event.textEditor.document.languageId !== 'abella') {
       return;
     }
 
