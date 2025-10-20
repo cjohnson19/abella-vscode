@@ -39,7 +39,7 @@ export class AdelfaLanguageClient {
     this.commandParser = new CommandParser();
     this.commandExecutor = new CommandExecutor(this.processManager, this.state);
     this.decorationManager = new DecorationManager();
-    this.infoProvider = new InfoWebviewProvider(grammar);
+    this.infoProvider = new InfoWebviewProvider(grammar, AdelfaConfig.shikiTheme);
 
     this.cursorDebouncer = new Debouncer(100); // 100ms delay for cursor movements
     this.textChangeDebouncer = new Debouncer(300); // 300ms delay for text changes

@@ -11,8 +11,8 @@ export class InfoWebviewProvider implements Disposable {
   private currentMessage: { code?: string; message?: string } | undefined;
   private isWebviewReady = false;
 
-  constructor(grammar: string) {
-    this.webviewContent = new WebviewContent(grammar);
+  constructor(grammar: string, theme: string) {
+    this.webviewContent = new WebviewContent(grammar, theme);
   }
 
   openPanel(): void {

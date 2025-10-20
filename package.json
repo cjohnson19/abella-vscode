@@ -46,6 +46,11 @@
           "type": "boolean",
           "description": "Automatically open the Adelfa output",
           "default": true
+        },
+        "adelfa.infoviewTheme": {
+          "type": "string",
+          "markdownDescription": "Specifies what theme to use for the syntax highlighting in the infoview. Supports themes from [Shiki](https://shiki.style/themes).",
+          "default": "monokai"
         }
       }
     },

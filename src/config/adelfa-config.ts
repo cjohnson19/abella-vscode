@@ -10,4 +10,8 @@ export class AdelfaConfig {
   static get autoOpen(): boolean {
     return workspace.getConfiguration(this.SECTION).get<boolean>('autoOpen', true);
   }
+
+  static get shikiTheme(): string {
+    return workspace.getConfiguration(this.SECTION).get<string>('infoviewTheme', 'monokai');
+  }
 }
