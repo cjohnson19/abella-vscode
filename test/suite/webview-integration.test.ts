@@ -5,8 +5,17 @@ import { createTestHelper, AdelfaTestHelper, TestFixtures, TestUtils } from '../
 suite('Adelfa Webview Integration Tests', () => {
   let testHelper: AdelfaTestHelper;
 
-  setup(() => {
+  setup(async function () {
+    this.timeout(10000);
     testHelper = createTestHelper();
+
+    // Ensure extension is activated before each test
+    const extension = vscode.extensions.getExtension('adelfa.adelfa-vscode');
+    if (extension && !extension.isActive) {
+      await extension.activate();
+      // Wait for activation to complete
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
   });
 
   teardown(async () => {
@@ -111,18 +120,28 @@ suite('Adelfa Webview Integration Tests', () => {
     );
     const athDoc = await testHelper.openFile(files.athFile!);
 
+    // Test getting webview content
+    const webviewContent = await testHelper.getWebviewContent();
+    assert.ok(typeof webviewContent === 'string', 'Webview content should be a string');
+
+    // If Adelfa is not available, the content should contain an error message
+    if (!(await testHelper.isAdelfaAvailable())) {
+      console.log('Adelfa not available, skipping process-dependent checks');
+      assert.ok(
+        webviewContent.includes('Error') || webviewContent.includes('Loading'),
+        'Should show error or loading message when Adelfa is not available',
+      );
+      this.skip();
+    }
+
     // Move cursor to trigger webview update
     const cursorPosition = files.athCursors![0];
     assert.ok(cursorPosition, 'Should have cursor position');
     await testHelper.moveCursorTo(athDoc, cursorPosition);
     await testHelper.waitForProcessingComplete(5000);
 
-    // Test getting webview content
-    const webviewContent = await testHelper.getWebviewContent();
-    assert.ok(
-      typeof webviewContent === 'string' || webviewContent === null,
-      'Webview content should be string or null',
-    );
+    const updatedContent = await testHelper.getWebviewContent();
+    assert.ok(updatedContent, 'Should have webview content after cursor move');
   });
 
   test('Should test cursor positions and verify webview states', async function () {

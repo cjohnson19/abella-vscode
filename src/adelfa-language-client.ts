@@ -97,7 +97,10 @@ export class AdelfaLanguageClient {
       this.showInfoAtPosition(editor.selection.active);
       this.activeTextEditor = editor;
     } catch (error) {
-      window.showErrorMessage(`Failed to start Adelfa: ${error}`);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.infoProvider.update({ message: `Error: ${errorMessage}` });
+      window.showErrorMessage(`Failed to start Adelfa: ${errorMessage}`);
+      this.activeTextEditor = editor;
     }
   }
 

@@ -22,14 +22,42 @@ export class AdelfaProcessManager {
 
     // Wait for the process to be ready
     return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        this.cleanup();
+        reject(
+          new Error(
+            `Adelfa process failed to start. Is '${this.adelfaPath}' installed and in your PATH?`,
+          ),
+        );
+      }, 5000);
+
       this.process!.stdout?.once('data', () => {
+        clearTimeout(timeout);
         resolve();
       });
 
       this.process!.on('error', error => {
-        reject(error);
+        clearTimeout(timeout);
+        this.cleanup();
+        reject(new Error(`Failed to start Adelfa: ${error.message}`));
+      });
+
+      this.process!.on('exit', code => {
+        clearTimeout(timeout);
+        if (code !== null && code !== 0) {
+          this.cleanup();
+          reject(new Error(`Adelfa process exited with code ${code}`));
+        }
       });
     });
+  }
+
+  private cleanup(): void {
+    if (this.process) {
+      this.removeAllListeners();
+      this.process.kill();
+      this.process = undefined;
+    }
   }
 
   async stop(): Promise<void> {
@@ -50,6 +78,10 @@ export class AdelfaProcessManager {
   async sendCommand(command: string): Promise<string> {
     if (!this.process) {
       throw new Error('Adelfa process is not running');
+    }
+
+    if (!this.process.stdin || this.process.stdin.destroyed) {
+      throw new Error('Adelfa process stdin stream is not available');
     }
 
     const result = await this.readOutput(`${command}\x0d`);
@@ -98,7 +130,14 @@ export class AdelfaProcessManager {
       this.process!.stdout?.on('data', onData);
       this.process!.stderr?.on('data', onError);
 
-      this.process!.stdin?.write(command, err => {
+      // Check if stdin is still writable before attempting to write
+      if (!this.process!.stdin || this.process!.stdin.destroyed) {
+        cleanup();
+        reject(new Error('Cannot write to Adelfa process: stdin stream is not available'));
+        return;
+      }
+
+      this.process!.stdin.write(command, err => {
         if (err) {
           cleanup();
           reject(err);

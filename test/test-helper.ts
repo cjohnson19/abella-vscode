@@ -118,6 +118,13 @@ export class AdelfaTestHelper {
     if (waitForActivation) {
       // Wait for extension to activate and process the file
       await new Promise(resolve => setTimeout(resolve, 1500));
+
+      // Ensure webview is opened for .ath files
+      if (file.fsPath.endsWith('.ath')) {
+        await this.ensureWebviewOpen();
+        // Wait a bit more for the file to be fully loaded by the language client
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
     }
 
     return doc;
@@ -142,6 +149,80 @@ export class AdelfaTestHelper {
   }
 
   /**
+   * Check if Adelfa executable is available
+   */
+  async isAdelfaAvailable(): Promise<boolean> {
+    try {
+      const extension = vscode.extensions.getExtension('adelfa.adelfa-vscode');
+      if (!extension) {
+        return false;
+      }
+
+      if (!extension.isActive) {
+        await extension.activate();
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+
+      const content = await this.getWebviewContent();
+      // If the webview content contains an error about Adelfa not being installed, it's not available
+      if (content && content.includes('Error:') && content.includes('Adelfa')) {
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  /**
+   * Ensure the webview panel is open
+   */
+  async ensureWebviewOpen(): Promise<boolean> {
+    try {
+      const extension = vscode.extensions.getExtension('adelfa.adelfa-vscode');
+      if (!extension) {
+        console.warn('Extension not found');
+        return false;
+      }
+
+      // Ensure extension is activated
+      if (!extension.isActive) {
+        await extension.activate();
+        // Wait a bit for activation to complete
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+
+      const extensionApi = extension.exports;
+      if (!extensionApi || typeof extensionApi.getClient !== 'function') {
+        console.warn('Extension API not available');
+        return false;
+      }
+
+      const client = extensionApi.getClient();
+      if (!client) {
+        console.warn('Client not available');
+        return false;
+      }
+
+      // Check if webview is already open
+      if (typeof client.isWebviewOpen === 'function' && client.isWebviewOpen()) {
+        return true;
+      }
+
+      // Open the webview using the command
+      await vscode.commands.executeCommand('adelfa.showOutput');
+      // Wait for webview to open
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      return typeof client.isWebviewOpen === 'function' ? client.isWebviewOpen() : false;
+    } catch (error) {
+      console.warn('Failed to ensure webview is open:', error);
+      return false;
+    }
+  }
+
+  /**
    * Get the current webview content (if available)
    */
   async getWebviewContent(): Promise<string | null> {
@@ -155,6 +236,7 @@ export class AdelfaTestHelper {
       // Ensure extension is activated
       if (!extension.isActive) {
         await extension.activate();
+        await new Promise(resolve => setTimeout(resolve, 500));
       }
 
       // Access the exported getClient function
@@ -162,6 +244,8 @@ export class AdelfaTestHelper {
       if (extensionApi && typeof extensionApi.getClient === 'function') {
         const client = extensionApi.getClient();
         if (client && typeof client.getWebviewContent === 'function') {
+          // Ensure webview is open before trying to get content
+          await this.ensureWebviewOpen();
           return client.getWebviewContent();
         }
       }
