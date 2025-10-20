@@ -224,8 +224,20 @@ export class AdelfaLanguageClient {
   private showInfoAtPosition(position: Position): void {
     // If there is some error before `position`, we show the error instead.
     if (this.state.errorInfo?.range.start.isBeforeOrEqual(position)) {
+      const commandCount = this.state.commands.length;
+      const code = [
+        // If we have a command before the input, it's useful to include its
+        // output before the error message so the user knows how to go about
+        // fixing it with the last valid state.
+        ...(commandCount > 0 ? [this.state.commands[commandCount - 1]?.output] : []),
+        `>> ${this.state.errorInfo.command}`,
+        this.state.errorInfo.message,
+      ]
+        .filter(Boolean)
+        .join('\n\n');
+
       this.infoProvider.update({
-        code: `>> ${this.state.errorInfo.command}\n\n${this.state.errorInfo.message}`,
+        code,
       });
       return;
     }
