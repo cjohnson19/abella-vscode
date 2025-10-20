@@ -18,7 +18,7 @@ import { AdelfaConfig } from './config/adelfa-config';
 import { maxPosition } from './util/position';
 import { Debouncer } from './util/debounce';
 import './util/array';
-import type { Command } from './models/command';
+import type { Command } from './models/types';
 
 export class AdelfaLanguageClient {
   private state: AdelfaState;

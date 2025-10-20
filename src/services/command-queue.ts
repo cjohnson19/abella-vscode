@@ -1,24 +1,24 @@
-import type { Command } from '../models/command';
+import type { Command } from '../models/types';
 
-export interface QueuedOperation<T = unknown> {
+export interface QueuedOperation {
   id: string;
   type: 'execute' | 'undo';
   commands?: Command[];
   position?: unknown;
   processor?: () => Promise<void>;
-  resolve: (value: T) => void;
+  resolve: (value: void) => void;
   reject: (reason?: unknown) => void;
 }
 
-export class CommandQueue<T> {
-  private queue: QueuedOperation<T>[] = [];
+export class CommandQueue {
+  private queue: QueuedOperation[] = [];
   private _isProcessing = false;
-  private currentOperation: QueuedOperation<T> | null = null;
+  private currentOperation: QueuedOperation | null = null;
 
-  async enqueue(operation: Omit<QueuedOperation<T>, 'id' | 'resolve' | 'reject'>): Promise<T> {
+  async enqueue(operation: Omit<QueuedOperation, 'id' | 'resolve' | 'reject'>): Promise<void> {
     return new Promise((resolve, reject) => {
       const id = Date.now().toString() + Math.random().toString(36).substr(2, 9);
-      const queuedOp: QueuedOperation<T> = {
+      const queuedOp: QueuedOperation = {
         ...operation,
         id,
         resolve,
@@ -51,9 +51,9 @@ export class CommandQueue<T> {
     }
   }
 
-  completeCurrentOperation(result?: T): void {
+  completeCurrentOperation(result?: void): void {
     if (this.currentOperation) {
-      this.currentOperation.resolve(result as T);
+      this.currentOperation.resolve(result);
       this.currentOperation = null;
       this._isProcessing = false;
       this.processNext();
@@ -69,7 +69,7 @@ export class CommandQueue<T> {
     }
   }
 
-  getCurrentOperation(): QueuedOperation<T> | null {
+  getCurrentOperation(): QueuedOperation | null {
     return this.currentOperation;
   }
 

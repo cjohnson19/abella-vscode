@@ -1,5 +1,5 @@
 import { Position, Range, type TextDocument } from 'vscode';
-import type { Command } from '../models/command';
+import type { Command } from '../models/types';
 
 export class CommandParser {
   parseCommands(document: TextDocument, range: Range): Command[] {

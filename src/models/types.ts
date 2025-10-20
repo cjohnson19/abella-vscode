@@ -8,3 +8,9 @@ export interface Command {
 export interface CommandWithOutput extends Command {
   output: string;
 }
+
+export interface ErrorInfo {
+  range: Range;
+  command: string;
+  message: string;
+}

@@ -1,11 +1,10 @@
 import { spawn, type ChildProcess } from 'child_process';
 import type { ParsedPath } from 'path';
 import { window } from 'vscode';
-import { ProcessCommunicator } from './process-communicator';
 
 export class AdelfaProcessManager {
+  private readonly DEFAULT_TIMEOUT = 30000; // 30 seconds
   private process: ChildProcess | undefined;
-  private communicator: ProcessCommunicator | undefined;
 
   constructor(private adelfaPath: string) {}
 
@@ -20,8 +19,6 @@ export class AdelfaProcessManager {
       shell: true,
       stdio: 'pipe',
     });
-
-    this.communicator = new ProcessCommunicator(this.process);
 
     // Wait for the process to be ready
     return new Promise((resolve, reject) => {
@@ -45,20 +42,75 @@ export class AdelfaProcessManager {
       this.process!.kill();
       this.process!.on('exit', () => {
         this.process = undefined;
-        this.communicator = undefined;
         resolve();
       });
     });
   }
 
   async sendCommand(command: string): Promise<string> {
-    if (!this.communicator) {
+    if (!this.process) {
       throw new Error('Adelfa process is not running');
     }
 
-    const result = await this.communicator.sendCommand(`${command}\x0d`);
-    this.communicator.removeAllListeners();
+    const result = await this.readOutput(`${command}\x0d`);
+    this.removeAllListeners();
     return result.trim();
+  }
+
+  private async readOutput(
+    command: string,
+    timeout: number = this.DEFAULT_TIMEOUT,
+  ): Promise<string> {
+    return new Promise((resolve, reject) => {
+      let data = '';
+      let timeoutId: NodeJS.Timeout | null = null;
+
+      const onData = (chunk: Buffer) => {
+        data += chunk.toString();
+        if (data.includes('>>')) {
+          data = data.replace(/.*>>/g, '');
+          cleanup();
+          resolve(data);
+        }
+      };
+
+      const onError = (error: Buffer) => {
+        cleanup();
+        reject(error.toString());
+      };
+
+      const onTimeout = () => {
+        cleanup();
+        reject(new Error(`Command timed out after ${timeout}ms`));
+      };
+
+      const cleanup = () => {
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+          timeoutId = null;
+        }
+        this.process!.stdout?.removeListener('data', onData);
+        this.process!.stderr?.removeListener('data', onError);
+      };
+
+      timeoutId = setTimeout(onTimeout, timeout);
+
+      this.process!.stdout?.on('data', onData);
+      this.process!.stderr?.on('data', onError);
+
+      this.process!.stdin?.write(command, err => {
+        if (err) {
+          cleanup();
+          reject(err);
+        }
+      });
+    });
+  }
+
+  private removeAllListeners(): void {
+    this.process?.stdin?.removeAllListeners();
+    this.process?.stdout?.removeAllListeners();
+    this.process?.stderr?.removeAllListeners();
   }
 
   isRunning(): boolean {

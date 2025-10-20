@@ -1,9 +1,5 @@
 import * as vscode from 'vscode';
 import { AdelfaLanguageClient } from './adelfa-language-client';
-import { EndProcessCommand } from './commands/end-process-command';
-import { RestartCommand } from './commands/restart-command';
-import { ShowOutputCommand } from './commands/show-output-command';
-import { StartCommand } from './commands/start-command';
 import adelfaGrammar from '../syntaxes/adelfa.tmLanguage.json';
 
 let client: AdelfaLanguageClient | undefined;
@@ -41,36 +37,40 @@ function registerEventListeners(context: vscode.ExtensionContext) {
 }
 
 function registerCommands(context: vscode.ExtensionContext) {
-  const setClient = (newClient: AdelfaLanguageClient | undefined) => {
-    client = newClient;
-  };
-
-  const endProcessCommand = new EndProcessCommand(getClient);
-  const restartCommand = new RestartCommand(getClient, setClient, grammar);
-  const showOutputCommand = new ShowOutputCommand(getClient);
-  const startCommand = new StartCommand(getClient, setClient, grammar);
-
   context.subscriptions.push(
-    vscode.commands.registerCommand('adelfa.endProcess', () => {
-      endProcessCommand.execute();
+    vscode.commands.registerCommand('adelfa.endProcess', async () => {
+      if (client) {
+        await client.dispose();
+      }
     }),
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand('adelfa.restart', () => {
-      restartCommand.execute();
+    vscode.commands.registerCommand('adelfa.restart', async () => {
+      if (client) {
+        await client.dispose();
+      }
+      client = new AdelfaLanguageClient(grammar);
     }),
   );
 
   context.subscriptions.push(
     vscode.commands.registerCommand('adelfa.showOutput', () => {
-      showOutputCommand.execute();
+      if (!client) {
+        vscode.window.showErrorMessage('Adelfa server is not running');
+        return;
+      }
+      client.showOutput();
     }),
   );
 
   context.subscriptions.push(
     vscode.commands.registerCommand('adelfa.start', () => {
-      startCommand.execute();
+      if (client) {
+        vscode.window.showWarningMessage('Adelfa server already running');
+        return;
+      }
+      client = new AdelfaLanguageClient(grammar);
     }),
   );
 }

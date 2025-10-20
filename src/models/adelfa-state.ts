@@ -1,7 +1,6 @@
 import type { ParsedPath } from 'path';
 import { Position, Range } from 'vscode';
-import type { CommandWithOutput } from './command';
-import type { ErrorInfo } from './error-info';
+import type { CommandWithOutput, ErrorInfo } from './types';
 
 export class AdelfaState {
   private _commands: CommandWithOutput[] = [];
@@ -10,7 +9,6 @@ export class AdelfaState {
   private _errorInfo: ErrorInfo | undefined;
   private _loading = false;
   private _lastSuccessfulPosition: Position = new Position(0, 0);
-  private _pendingCommands: Set<string> = new Set();
 
   get commands(): ReadonlyArray<CommandWithOutput> {
     return this._commands;
@@ -48,10 +46,6 @@ export class AdelfaState {
     return this._lastSuccessfulPosition;
   }
 
-  get pendingCommands(): ReadonlySet<string> {
-    return this._pendingCommands;
-  }
-
   setFilePath(path: ParsedPath | undefined): void {
     this._filePath = path;
   }
@@ -71,15 +65,6 @@ export class AdelfaState {
   addCommand(command: CommandWithOutput): void {
     this._commands.push(command);
     this._lastSuccessfulPosition = command.range.end;
-    this._pendingCommands.delete(command.command);
-  }
-
-  addPendingCommand(command: string): void {
-    this._pendingCommands.add(command);
-  }
-
-  removePendingCommand(command: string): void {
-    this._pendingCommands.delete(command);
   }
 
   removeLastCommand(): CommandWithOutput | undefined {
@@ -107,7 +92,7 @@ export class AdelfaState {
    * Get all commands, including the ones which include `position` in their range.
    */
   getCommandsAfterPositionInclusive(position: Position): CommandWithOutput[] {
-    return this._commands.filter(c => c.range.end.isAfterOrEqual(position));
+    return this._commands.filter(c => c.range.end.isAfter(position));
   }
 
   getLastCommandBeforePosition(position: Position): CommandWithOutput | undefined {
@@ -154,6 +139,5 @@ export class AdelfaState {
     this._errorInfo = undefined;
     this._loading = false;
     this._lastSuccessfulPosition = new Position(0, 0);
-    this._pendingCommands.clear();
   }
 }

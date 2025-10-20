@@ -1,18 +1,17 @@
-import type { Command, CommandWithOutput } from '../models/command';
-import type { ErrorInfo } from '../models/error-info';
+import type { Command, CommandWithOutput, ErrorInfo } from '../models/types';
 import type { AdelfaProcessManager } from './adelfa-process-manager';
 import type { AdelfaState } from '../models/adelfa-state';
 import { CommandQueue } from './command-queue';
 import type { Position } from 'vscode';
 
 export class CommandExecutor {
-  private commandQueue: CommandQueue<void>;
+  private commandQueue: CommandQueue;
 
   constructor(
     private processManager: AdelfaProcessManager,
     private state: AdelfaState,
   ) {
-    this.commandQueue = new CommandQueue<void>();
+    this.commandQueue = new CommandQueue();
   }
 
   async executeCommands(commands: Command[]): Promise<void> {
@@ -22,8 +21,6 @@ export class CommandExecutor {
       processor: async () => {
         for (const command of commands) {
           try {
-            this.state.addPendingCommand(command.command);
-
             const output = await this.processManager.sendCommand(command.command);
             const commandWithOutput: CommandWithOutput = {
               ...command,
@@ -31,8 +28,6 @@ export class CommandExecutor {
             };
             this.state.addCommand(commandWithOutput);
           } catch (error) {
-            this.state.removePendingCommand(command.command);
-
             const errorInfo: ErrorInfo = {
               range: command.range,
               command: command.command,
