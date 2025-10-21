@@ -11,10 +11,10 @@
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/abella-prover/abella-vscode"
+    "url": "https://github.com/cjohnson19/abella-vscode"
   },
   "bugs": {
-    "url": "https://github.com/abella-prover/abella-vscode/issues"
+    "url": "https://github.com/cjohnson19/abella-vscode/issues"
   },
   "author": "Chase Johnson <cjohnson19@pm.me>",
   "pricing": "Free",
