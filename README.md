@@ -4,10 +4,9 @@ Warning: This extension is still in development and may not always work as
 expected. It's likely you will have to use the `Abella: Restart` command at some
 point. If you encounter any problems, please open an issue.
 
-I am not a developer, maintainer, or any way involved with the Abella team, so
-_this extension will not be published to the extension marketplace_.
+_I am not a developer, maintainer, or any way involved with the Abella team._
 
-To install it, you will need to have
+To install it manually, you will need to have
 [vsce](https://www.npmjs.com/package/@vscode/vsce) installed, clone this
 repository, install the dependencies with `npm install`, build the extension
 with `vsce package`. You will then have the extension as

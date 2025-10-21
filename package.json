@@ -23,7 +23,7 @@
     "theme": "dark"
   },
   "version": "0.1.1",
-  "publisher": "abella",
+  "publisher": "abella-community",
   "engines": {
     "vscode": "^1.94.0"
   },
