@@ -22,7 +22,7 @@
     "color": "#000000",
     "theme": "dark"
   },
-  "version": "0.1.1",
+  "version": "0.2.0",
   "publisher": "abella-community",
   "engines": {
     "vscode": "^1.94.0"
