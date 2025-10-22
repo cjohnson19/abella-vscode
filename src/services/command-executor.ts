@@ -49,11 +49,7 @@ export class CommandExecutor {
         return;
       }
 
-      if (lastCommand.command.trimStart().startsWith('Theorem')) {
-        await this.processManager.sendCommand('abort.');
-      } else {
-        await this.processManager.sendCommand('undo.');
-      }
+      await this.processManager.sendCommand('#back.');
     } finally {
       this.state.setLoading(false);
     }
