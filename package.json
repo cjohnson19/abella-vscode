@@ -46,7 +46,7 @@
           "description": "Automatically open the Abella output",
           "default": true
         },
-        "adelfa.infoviewTheme": {
+        "abella.infoviewTheme": {
           "type": "string",
           "markdownDescription": "Specifies what theme to use for the syntax highlighting in the infoview. Supports themes from [Shiki](https://shiki.style/themes).",
           "default": "monokai"

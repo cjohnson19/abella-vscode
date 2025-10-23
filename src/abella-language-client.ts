@@ -206,7 +206,7 @@ export class AbellaLanguageClient {
   }
 
   private async undoCommandsUntilPosition(position: Position): Promise<void> {
-    if (this.state.errorInfo?.range.end.isAfterOrEqual(position)) {
+    if (this.state.errorInfo?.range.end.isAfter(position)) {
       this.state.setErrorInfo(undefined);
     }
 
@@ -222,15 +222,15 @@ export class AbellaLanguageClient {
 
   private showInfoAtPosition(position: Position): void {
     // If there is some error before `position`, we show the error instead.
-    if (this.state.errorInfo?.range.start.isBeforeOrEqual(position)) {
+    if (this.state.errorInfo?.range.end.isBeforeOrEqual(position)) {
       const commandCount = this.state.commands.length;
       const code = [
+        `Abella < ${this.state.errorInfo.command}`,
+        this.state.errorInfo.message,
         // If we have a command before the input, it's useful to include its
         // output before the error message so the user knows how to go about
         // fixing it with the last valid state.
         ...(commandCount > 0 ? [this.state.commands[commandCount - 1]?.output] : []),
-        `Abella < ${this.state.errorInfo.command}`,
-        this.state.errorInfo.message,
       ]
         .filter(Boolean)
         .join('\n\n');
