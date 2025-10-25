@@ -7,6 +7,7 @@ import {
   type TextDocumentChangeEvent,
   type Disposable,
   type TextEditor,
+  OutputChannel,
 } from 'vscode';
 import { AbellaState } from './models/abella-state';
 import { CommandParser } from './services/command-parser';
@@ -32,10 +33,12 @@ export class AbellaLanguageClient {
   private disposables: Disposable[] = [];
   private isProcessingUpdate = false;
   private activeTextEditor: TextEditor | undefined;
+  private outputChannel: OutputChannel;
 
   constructor(grammar: string) {
     this.state = new AbellaState();
-    this.processManager = new AbellaProcessManager(AbellaConfig.abellaPath);
+    this.outputChannel = window.createOutputChannel('Abella');
+    this.processManager = new AbellaProcessManager(AbellaConfig.abellaPath, this.outputChannel);
     this.commandParser = new CommandParser();
     this.commandExecutor = new CommandExecutor(this.processManager, this.state);
     this.decorationManager = new DecorationManager();

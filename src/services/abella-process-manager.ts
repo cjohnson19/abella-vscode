@@ -1,6 +1,6 @@
 import { spawn, type ChildProcess } from 'child_process';
 import type { ParsedPath } from 'path';
-import { window } from 'vscode';
+import { OutputChannel, window } from 'vscode';
 
 export class AbellaProcessManager {
   private readonly DEFAULT_TIMEOUT = 30000; // 30 seconds
@@ -10,7 +10,10 @@ export class AbellaProcessManager {
     return s.toLowerCase().includes('error');
   }
 
-  constructor(private abellaPath: string) {}
+  constructor(
+    private abellaPath: string,
+    private outputChannel: OutputChannel,
+  ) {}
 
   async start(filePath: ParsedPath): Promise<void> {
     if (this.process) {
@@ -103,6 +106,7 @@ export class AbellaProcessManager {
 
       const onData = (chunk: Buffer) => {
         data += chunk.toString();
+        this.outputChannel.append(data);
         if (this.isError(data)) {
           cleanup();
           reject(data);
@@ -114,8 +118,10 @@ export class AbellaProcessManager {
       };
 
       const onError = (error: Buffer) => {
+        const s = error.toString();
+        this.outputChannel.append(s);
         cleanup();
-        reject(error.toString());
+        reject(s);
       };
 
       const onTimeout = () => {
@@ -144,6 +150,7 @@ export class AbellaProcessManager {
         return;
       }
 
+      this.outputChannel.appendLine(command);
       this.process!.stdin.write(command, err => {
         if (err) {
           cleanup();
